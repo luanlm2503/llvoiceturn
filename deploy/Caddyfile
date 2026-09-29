@@ -1,0 +1,7 @@
+{$LLV_DOMAIN} {
+	encode gzip
+	reverse_proxy proxy:8000 {
+		# Lấy IP thật của khách khi đi qua Cloudflare
+		header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+	}
+}

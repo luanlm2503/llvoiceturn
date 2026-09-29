@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Secret
+.env
+*.pem
+
+# Build
+client/llvoice/_build.py
+build/
+dist/
+*.build/
+*.dist/
+*.onefile-build/
+
+# Dữ liệu chạy local
+data/
+*.log
+
+# Editor
+.vscode/
+.idea/
+.vs/

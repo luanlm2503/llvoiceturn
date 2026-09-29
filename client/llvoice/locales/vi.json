@@ -1,0 +1,35 @@
+{
+  "app.title": "LLVoiceTool",
+
+  "tab.tts": "Tạo giọng",
+  "tab.srt": "Lồng tiếng SRT",
+  "tab.voices": "Giọng của tôi",
+  "tab.queue": "Hàng đợi",
+  "tab.history": "Lịch sử",
+  "tab.account": "Tài khoản",
+
+  "placeholder.coming_soon": "Chức năng này đang được xây dựng.",
+
+  "status.connecting": "Đang kết nối máy chủ…",
+  "status.online": "Đã kết nối máy chủ · phiên bản {version}",
+  "status.offline": "Không kết nối được máy chủ. Kiểm tra mạng rồi mở lại app.",
+
+  "error.internal_error": "Lỗi hệ thống, vui lòng thử lại sau.",
+  "error.validation_error": "Dữ liệu gửi lên không hợp lệ.",
+  "error.not_found": "Không tìm thấy dữ liệu yêu cầu.",
+  "error.rate_limited": "Bạn thao tác quá nhanh. Đợi một lát rồi thử lại.",
+  "error.app_update_required": "Phiên bản app đã cũ. Cập nhật để tiếp tục sử dụng.",
+  "error.unauthorized": "Bạn cần đăng nhập lại.",
+  "error.token_expired": "Phiên đăng nhập đã hết hạn. Đăng nhập lại để tiếp tục.",
+  "error.hwid_mismatch": "Tài khoản đã gắn với máy khác. Liên hệ hỗ trợ để đổi máy.",
+  "error.session_replaced": "Tài khoản vừa đăng nhập trên máy khác nên phiên này đã đóng.",
+  "error.account_locked": "Tài khoản đã bị khóa. Liên hệ hỗ trợ.",
+  "error.key_invalid": "Key kích hoạt không đúng. Kiểm tra lại từng ký tự.",
+  "error.key_used": "Key này đã được dùng.",
+  "error.plan_expired": "Gói đã hết hạn. Nhập key mới để gia hạn.",
+  "error.credit_insufficient": "Không đủ credit. Còn {remaining}, cần {required}.",
+  "error.text_too_long": "Văn bản quá dài cho một lần tạo.",
+  "error.voice_not_found": "Không tìm thấy giọng đã chọn.",
+  "error.no_slot_available": "Máy chủ đang bận. Thử lại sau ít phút.",
+  "error.upstream_error": "Dịch vụ tạo giọng đang gặp sự cố. Thử lại sau."
+}

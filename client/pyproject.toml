@@ -1,0 +1,30 @@
+[project]
+name = "llvoice-client"
+version = "0.1.0"
+description = "App Windows LLVoiceTool"
+requires-python = ">=3.12"
+dependencies = [
+    "PySide6>=6.7",
+    "httpx>=0.27",
+    "llvoice-shared",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+build = ["nuitka>=2.4"]
+
+[project.gui-scripts]
+llvoice = "llvoice.main:main"
+
+[tool.uv.sources]
+llvoice-shared = { path = "../shared", editable = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["llvoice"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
