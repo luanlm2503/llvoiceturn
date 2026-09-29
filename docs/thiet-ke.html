@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LLVoiceTool — Tài liệu thiết kế</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: tài liệu kỹ thuật, mục lục dính bên trái, một cột nội dung; sơ đồ và bảng cuộn ngang trong khung riêng */
+:root{
+  --bg:#F3F6F7;--surface:#FFFFFF;--fg:#13202A;--muted:#566875;--line:#D3DCE1;
+  --accent:#0A6E7D;--accent-soft:#DFF0F2;
+  --warn:#9A4D08;--warn-soft:#FBEEDD;--bad:#B3261E;--bad-soft:#FBE8E6;--good:#1D7446;--good-soft:#E2F3E9;
+  --code:#E9EFF1;
+  --f-display:"Be Vietnam Pro",system-ui,"Segoe UI",sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D151B;--surface:#14202A;--fg:#E3EBF0;--muted:#94A6B3;--line:#27353F;
+  --accent:#44C2D0;--accent-soft:#0F3139;
+  --warn:#EFA553;--warn-soft:#33240F;--bad:#F27A70;--bad-soft:#3A1816;--good:#62CB94;--good-soft:#12301F;
+  --code:#1A2832;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D151B;--surface:#14202A;--fg:#E3EBF0;--muted:#94A6B3;--line:#27353F;
+  --accent:#44C2D0;--accent-soft:#0F3139;
+  --warn:#EFA553;--warn-soft:#33240F;--bad:#F27A70;--bad-soft:#3A1816;--good:#62CB94;--good-soft:#12301F;
+  --code:#1A2832;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font:15px/1.65 var(--f-body)}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:40px 96px;display:grid;grid-template-columns:190px minmax(0,1fr);gap:48px}
+nav.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 24px);align-self:start;font-size:13px}
+nav.toc p{font:500 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+nav.toc ol{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+nav.toc a{color:var(--muted);text-decoration:none}
+nav.toc a:hover,nav.toc a:focus-visible{color:var(--accent)}
+main{min-width:0}
+header.doc{padding-bottom:28px}
+.eyebrow{font:500 12px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 10px}
+h1{font:700 clamp(30px,4.6vw,46px)/1.12 var(--f-display);letter-spacing:-.02em;margin:0 0 14px;text-wrap:balance}
+h2{font:700 24px/1.25 var(--f-display);letter-spacing:-.01em;margin:0 0 12px;text-wrap:balance}
+h3{font:600 17px/1.35 var(--f-display);margin:26px 0 8px;text-wrap:balance}
+p,li{max-width:70ch}
+p{margin:0 0 12px}
+ul,ol{padding-left:20px;margin:0 0 12px}
+li{margin-bottom:4px}
+.lede{font-size:18px;line-height:1.55;color:var(--muted);max-width:62ch}
+section{padding-block:32px;border-top:1px solid var(--line)}
+a{color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+code{font:13px var(--f-mono);background:var(--code);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
+pre{font:13px/1.55 var(--f-mono);background:var(--code);padding:14px 16px;border-radius:8px;overflow-x:auto;margin:0 0 14px}
+pre code{background:none;padding:0}
+strong{font-weight:600}
+.decisions{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:20px 0 0}
+.decisions div{background:var(--surface);padding:12px 14px;min-width:0}
+.decisions dt{font:500 11px var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.decisions dd{margin:4px 0 0;font-weight:500;line-height:1.45}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface);margin:14px 0 16px}
+table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.5}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font:600 11.5px var(--f-body);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+td.num,th.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.pill{display:inline-block;font:500 11.5px/1.6 var(--f-mono);padding:1px 8px;border-radius:99px;white-space:nowrap;background:var(--code);color:var(--muted)}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.acc{background:var(--accent-soft);color:var(--accent)}
+.callout{background:var(--warn-soft);border-radius:8px;padding:12px 16px;margin:14px 0}
+.callout b{display:block;font:600 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--warn);margin-bottom:4px}
+.callout p:last-child{margin:0}
+figure{margin:18px 0;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px}
+figure .scroll{overflow-x:auto}
+figure svg{display:block;width:100%;min-width:680px;height:auto}
+figcaption{font-size:13px;color:var(--muted);margin-top:10px;max-width:80ch}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px 28px}
+.cols > *{min-width:0}
+/* sơ đồ */
+.d text{font:12.5px var(--f-body);fill:var(--fg)}
+.d .sm{font-size:11px;fill:var(--muted)}
+.d .zl{font:500 10.5px var(--f-mono);letter-spacing:.08em;fill:var(--muted)}
+.d .zone{fill:var(--bg);stroke:var(--line);stroke-dasharray:4 4}
+.d .b{fill:var(--surface);stroke:var(--muted);stroke-width:1}
+.d .b.acc{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.4}
+.d .b.dash{stroke-dasharray:5 4}
+.d .b.bad{fill:var(--bad-soft);stroke:var(--bad)}
+.d .ln{stroke:var(--muted);fill:none;stroke-width:1.4}
+.d .ln.acc{stroke:var(--accent)}
+.d .ln.bad{stroke:var(--bad)}
+.d .ln.dash{stroke-dasharray:5 4}
+.d .life{stroke:var(--line);stroke-dasharray:3 4}
+.d .mk{fill:var(--muted)}
+.d .mk.acc{fill:var(--accent)}
+.d .mk.bad{fill:var(--bad)}
+.d .t-acc{fill:var(--accent)}
+.d .t-bad{fill:var(--bad)}
+.phases{display:grid;gap:0;border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow:hidden}
+.phase{display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.phase:last-child{border-bottom:0}
+.phase .when{font:500 12px/1.5 var(--f-mono);color:var(--muted)}
+.phase .when strong{display:block;font:700 15px var(--f-display);color:var(--accent)}
+.phase h4{margin:0 0 4px;font:600 15px var(--f-display)}
+.phase p,.phase ul{margin:0;font-size:14px}
+ol.qs{counter-reset:q;list-style:none;padding:0;display:grid;gap:10px}
+ol.qs li{counter-increment:q;display:grid;grid-template-columns:44px minmax(0,1fr);gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;max-width:none;margin:0}
+ol.qs li::before{content:"Q" counter(q);font:600 13px var(--f-mono);color:var(--accent)}
+ol.qs li span{color:var(--muted);display:block;font-size:14px}
+footer{margin-top:40px;font-size:13px;color:var(--muted)}
+@media (max-width:900px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:20px;padding-block:28px 72px}
+  nav.toc{position:static}
+  nav.toc ol{display:flex;flex-wrap:wrap;gap:6px 14px}
+  .phase{grid-template-columns:minmax(0,1fr);gap:6px}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<nav class="toc" aria-label="Mục lục">
+  <p>Mục lục</p>
+  <ol>
+    <li><a href="#tomtat">Tóm tắt</a></li>
+    <li><a href="#kientruc">Kiến trúc</a></li>
+    <li><a href="#pool">Pool tài khoản</a></li>
+    <li><a href="#luong">Luồng một yêu cầu</a></li>
+    <li><a href="#giong">Giọng clone</a></li>
+    <li><a href="#tinhphi">Tính phí &amp; key</a></li>
+    <li><a href="#baomat">Đăng nhập &amp; khóa máy</a></li>
+    <li><a href="#app">Ứng dụng exe</a></li>
+    <li><a href="#api">API proxy</a></li>
+    <li><a href="#dulieu">Dữ liệu</a></li>
+    <li><a href="#trienkhai">Máy chủ</a></li>
+    <li><a href="#lotrinh">Lộ trình</a></li>
+    <li><a href="#ruiro">Rủi ro</a></li>
+    <li><a href="#cauhoi">Cần bạn trả lời</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="doc" id="tomtat">
+  <p class="eyebrow">Tài liệu thiết kế · bản 0.2 · 29/09/2026</p>
+  <h1>LLVoiceTool</h1>
+  <p class="lede">Ứng dụng Windows (.exe) bán cho khách hàng. App không giữ bất kỳ tài khoản MiniMax nào — mọi yêu cầu đi qua proxy của bạn. Proxy giữ danh sách tài khoản MiniMax, tự xoay vòng, trừ credit theo số ký tự thực tế, và khóa mỗi tài khoản khách vào máy của họ.</p>
+  <p>Luồng chính: khách mua key → nhập key trong app để kích hoạt gói → dán văn bản hoặc thả file SRT → app chia nhỏ và gửi từng đoạn lên proxy → proxy chọn tài khoản MiniMax còn khỏe, gọi API, ghi sổ credit và trả audio → app ghép lại thành file hoàn chỉnh. Tính phí và tài khoản MiniMax hoàn toàn nằm trên server — crack exe cũng không bypass được.</p>
+  <dl class="decisions">
+    <div><dt>Tên sản phẩm</dt><dd>LLVoiceTool</dd></div>
+    <div><dt>Chức năng v1</dt><dd>Văn bản → giọng nói · Lồng tiếng SRT · Clone &amp; thiết kế giọng. Đổi giọng audio để giai đoạn sau.</dd></div>
+    <div><dt>Tài khoản MiniMax</dt><dd>API key chính thức trước; tài khoản web (cookie) ở giai đoạn 4</dd></div>
+    <div><dt>Khách hàng</dt><dd>Bán lẻ; mỗi tài khoản khách khóa theo máy (HWID)</dd></div>
+    <div><dt>Công nghệ</dt><dd>Python: FastAPI cho proxy, PySide6 cho app, đóng gói Nuitka</dd></div>
+    <div><dt>Credit &amp; gói</dt><dd>Gói thời hạn + hạn mức credit; admin tự cấu hình gói, đơn vị, tỉ lệ quy đổi trong trang quản trị</dd></div>
+    <div><dt>Nạp tiền</dt><dd>Key kích hoạt do admin sinh, bán qua kênh ngoài</dd></div>
+    <div><dt>Nhận dạng giọng</dt><dd>Bỏ khỏi v1 — tính năng đổi giọng để giai đoạn sau</dd></div>
+    <div><dt>Chống chia sẻ</dt><dd>Mức trung bình: HWID + một phiên đăng nhập + build Nuitka</dd></div>
+    <div><dt>Máy chủ</dt><dd>VPS Linux Singapore, Docker Compose, Cloudflare phía trước</dd></div>
+    <div><dt>Ngôn ngữ giao diện</dt><dd>Tiếng Việt (i18n-ready để thêm ngôn ngữ sau)</dd></div>
+    <div><dt>Giọng clone</dt><dd>Ghim vào slot MiniMax đã tạo; tự clone lại khi slot chết</dd></div>
+    <div><dt>Thêm</dt><dd>Tự cập nhật · Thông báo admin · Hàng loạt · Lịch sử &amp; thư viện giọng</dd></div>
+  </dl>
+</header>
+<section id="kientruc">
+  <h2>Kiến trúc tổng thể</h2>
+  <p>Có ba vùng. Máy khách chỉ có app và dữ liệu cục bộ. VPS giữ toàn bộ tài khoản MiniMax, sổ credit và logic tính phí. MiniMax chỉ nhận yêu cầu từ VPS, không bao giờ từ máy khách.</p>
+  <figure>
+    <div class="scroll">
+    <svg class="d" viewBox="0 0 1000 310" role="img" aria-label="Sơ đồ kiến trúc: app trên máy khách gọi proxy trên VPS qua HTTPS; proxy chọn tài khoản MiniMax và gọi API.">
+      <defs>
+        <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0 0L10 5L0 10z"/></marker>
+        <marker id="a1c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk acc" d="M0 0L10 5L0 10z"/></marker>
+      </defs>
+      <rect class="zone" x="10" y="20" width="240" height="280" rx="10"/>
+      <text class="zl" x="24" y="40">MÁY KHÁCH · WINDOWS</text>
+      <rect class="zone" x="310" y="20" width="420" height="280" rx="10"/>
+      <text class="zl" x="324" y="40">VPS · DOCKER COMPOSE</text>
+      <rect class="zone" x="770" y="20" width="220" height="280" rx="10"/>
+      <text class="zl" x="784" y="40">MINIMAX</text>
+
+      <rect class="b" x="30" y="60" width="200" height="56" rx="7"/>
+      <text x="130" y="84" text-anchor="middle">App .exe</text>
+      <text class="sm" x="130" y="102" text-anchor="middle">PySide6 · hàng đợi · ghép audio</text>
+      <rect class="b" x="30" y="160" width="200" height="56" rx="7"/>
+      <text x="130" y="184" text-anchor="middle">SQLite</text>
+      <text class="sm" x="130" y="202" text-anchor="middle">lịch sử · hàng đợi · cài đặt</text>
+      <path class="ln" d="M130 116V158" marker-end="url(#a1)"/>
+
+      <path class="ln acc" d="M230 88H328" marker-end="url(#a1c)"/>
+      <text class="sm" x="280" y="80" text-anchor="middle">HTTPS · JWT</text>
+      <text class="sm" x="280" y="104" text-anchor="middle">chữ lên, audio về</text>
+
+      <rect class="b" x="330" y="60" width="140" height="56" rx="7"/>
+      <text x="400" y="84" text-anchor="middle">Caddy</text>
+      <text class="sm" x="400" y="102" text-anchor="middle">HTTPS, sau Cloudflare</text>
+      <rect class="b acc" x="510" y="60" width="200" height="56" rx="7"/>
+      <text x="610" y="84" text-anchor="middle">Proxy API · FastAPI</text>
+      <text class="sm" x="610" y="102" text-anchor="middle">đăng nhập, trừ hạn mức</text>
+      <path class="ln acc" d="M470 88H508" marker-end="url(#a1c)"/>
+
+      <rect class="b" x="330" y="150" width="140" height="48" rx="7"/>
+      <text x="400" y="171" text-anchor="middle">Trang quản trị</text>
+      <text class="sm" x="400" y="187" text-anchor="middle">key, khách, tài khoản</text>
+      <path class="ln" d="M400 116V148" marker-end="url(#a1)"/>
+      <text class="sm" x="408" y="137">/admin</text>
+
+      <rect class="b acc" x="510" y="150" width="200" height="48" rx="7"/>
+      <text x="610" y="171" text-anchor="middle">Bộ chọn tài khoản</text>
+      <text class="sm" x="610" y="187" text-anchor="middle">xoay vòng · hạ tạm · ghim giọng</text>
+      <path class="ln acc" d="M610 116V148" marker-end="url(#a1c)"/>
+
+      <rect class="b" x="330" y="232" width="140" height="48" rx="7"/>
+      <text x="400" y="253" text-anchor="middle">Worker nền</text>
+      <text class="sm" x="400" y="269" text-anchor="middle">kiểm tra, clone lại</text>
+      <rect class="b" x="510" y="232" width="200" height="48" rx="7"/>
+      <text x="610" y="253" text-anchor="middle">PostgreSQL · Redis · file</text>
+      <text class="sm" x="610" y="269" text-anchor="middle">sổ credit, tài khoản, mẫu giọng</text>
+      <path class="ln" d="M610 198V230" marker-end="url(#a1)"/>
+      <text class="sm" x="618" y="219">ghi sổ</text>
+      <path class="ln" d="M470 256H508" marker-end="url(#a1)"/>
+      <path class="ln" d="M470 174H490V256"/>
+
+      <path class="ln acc" d="M710 174H740V118H788" marker-end="url(#a1c)"/>
+      <path class="ln dash" d="M740 174V228H788" marker-end="url(#a1)"/>
+      <text class="sm" x="714" y="166">gọi API</text>
+
+      <rect class="b" x="790" y="90" width="180" height="56" rx="7"/>
+      <text x="880" y="114" text-anchor="middle">API chính thức</text>
+      <text class="sm" x="880" y="132" text-anchor="middle">api.minimax.io · Bearer key</text>
+      <rect class="b dash" x="790" y="200" width="180" height="56" rx="7"/>
+      <text x="880" y="224" text-anchor="middle">Tài khoản web</text>
+      <text class="sm" x="880" y="242" text-anchor="middle">cookie/token · làm sau</text>
+    </svg>
+    </div>
+    <figcaption>Đường màu là đường đi của một yêu cầu tạo giọng. Nét đứt là phần làm ở giai đoạn sau. Worker nền cũng gọi MiniMax để kiểm tra tài khoản và clone lại giọng, không vẽ để sơ đồ gọn.</figcaption>
+  </figure>
+  <div class="cols">
+    <div>
+      <h3>Máy khách</h3>
+      <ul>
+        <li><strong>App .exe</strong>: giao diện, chia văn bản, hàng đợi song song, ghép và xuất file.</li>
+        <li><strong>SQLite</strong>: lịch sử, tiến độ hàng đợi (tiếp tục sau khi tắt app), cài đặt cục bộ.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>VPS</h3>
+      <ul>
+        <li><strong>Proxy API</strong>: xác thực, kiểm tra HWID, giữ tạm và chốt credit, gọi bộ chọn tài khoản.</li>
+        <li><strong>Bộ chọn tài khoản</strong>: chọn tài khoản MiniMax còn khỏe, xử lý lỗi, thử lại trên tài khoản khác.</li>
+        <li><strong>Worker</strong> (arq trên Redis): kiểm tra tài khoản định kỳ, giữ giọng clone không bị xóa, clone lại khi tài khoản chết.</li>
+        <li><strong>Trang quản trị</strong>: sinh key, quản lý khách, tài khoản MiniMax, model, thông báo, bản cập nhật.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+<section id="pool">
+  <h2>Pool tài khoản MiniMax</h2>
+  <p>Proxy không để một tài khoản gánh hết; mỗi tài khoản là một slot. Bộ chọn biết trạng thái từng slot để tránh dùng slot đang quá tải hay bị khóa.</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Trạng thái slot</th><th>Mô tả</th><th>Hành động</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pill good">active</span></td><td>Khỏe, dùng bình thường</td><td>Được phân công yêu cầu</td></tr>
+        <tr><td><span class="pill warn">rate_limited</span></td><td>Trả về lỗi 1002 / 1039</td><td>Đưa vào hạ nhiệt, bỏ qua cho đến khi hết cooldown</td></tr>
+        <tr><td><span class="pill warn">cooling</span></td><td>Đang hạ nhiệt (cấu hình được: mặc định 60 giây)</td><td>Không phân công; worker kiểm tra và phục hồi</td></tr>
+        <tr><td><span class="pill bad">auth_failed</span></td><td>Lỗi 1004 (key sai/hết hiệu lực)</td><td>Tạm dừng toàn bộ; admin nhận cảnh báo</td></tr>
+        <tr><td><span class="pill bad">disabled</span></td><td>Admin tắt thủ công</td><td>Bỏ qua hoàn toàn</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h3>Chiến lược phân công</h3>
+  <p><strong>Ưu tiên tài khoản ít bị rate limit nhất</strong>: sắp xếp các slot <code>active</code> theo số lần bị 1002 trong 5 phút qua (ít nhất lên trước), lấy slot đầu. Nếu tất cả đang <code>cooling</code>: hàng đợi đợi 3 giây rồi thử lại (tối đa 3 vòng), nếu vẫn không có thì trả lỗi cho app.</p>
+  <p><strong>Tài khoản web (sau này)</strong>: nhét vào cùng bảng <code>account_slots</code> với trường <code>type = "web"</code>, thêm bộ làm mới cookie. Bộ chọn không thay đổi.</p>
+  <h3>Giữ giọng clone không bị xóa</h3>
+  <p>MiniMax xóa giọng clone nếu không dùng 7 ngày. Worker chạy hàng ngày lấy danh sách giọng clone của từng tài khoản, gọi TTS một câu ngắn với bất kỳ giọng nào sắp quá hạn. Chi phí rất nhỏ (vài ký tự) nhưng giữ giọng sống mãi.</p>
+  <div class="callout"><b>Lưu ý chi phí</b><p>Mỗi lần "nuôi giọng" tốn tối thiểu 1 ký tự TTS. Nếu khách có nhiều giọng clone thì chi phí tích lại. Xem xét gộp tất cả giọng cần nuôi vào một câu dài để giảm số lần gọi API.</p></div>
+</section>
+<section id="luong">
+  <h2>Luồng một yêu cầu TTS</h2>
+  <p>Phần phức nhất là bước giữ tạm credit (<em>reserve</em>). Nếu chỉ trừ sau khi MiniMax trả về xong, một cuộc gọi lớn có thể khiến credit âm khi có nhiều yêu cầu đồng thời.</p>
+  <figure>
+    <div class="scroll">
+    <svg class="d" viewBox="0 0 980 420" role="img" aria-label="Luồng chi tiết từ app gửi yêu cầu cho đến khi nhận audio về và credit bị trừ chính xác.">
+      <defs>
+        <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="mk" d="M0 0L10 5L0 10z"/></marker>
+        <marker id="a2c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="mk acc" d="M0 0L10 5L0 10z"/></marker>
+        <marker id="a2b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="mk bad" d="M0 0L10 5L0 10z"/></marker>
+      </defs>
+      <!-- participants -->
+      <line class="life" x1="80" y1="56" x2="80" y2="410"/>
+      <line class="life" x1="280" y1="56" x2="280" y2="410"/>
+      <line class="life" x1="480" y1="56" x2="480" y2="410"/>
+      <line class="life" x1="700" y1="56" x2="700" y2="410"/>
+      <line class="life" x1="900" y1="56" x2="900" y2="410"/>
+      <rect class="b" x="20" y="18" width="120" height="38" rx="6"/><text x="80" y="41" text-anchor="middle">App</text>
+      <rect class="b acc" x="220" y="18" width="120" height="38" rx="6"/><text x="280" y="41" text-anchor="middle">Proxy</text>
+      <rect class="b" x="420" y="18" width="120" height="38" rx="6"/><text x="480" y="41" text-anchor="middle">PostgreSQL</text>
+      <rect class="b" x="640" y="18" width="120" height="38" rx="6"/><text x="700" y="41" text-anchor="middle">Bộ chọn</text>
+      <rect class="b" x="840" y="18" width="120" height="38" rx="6"/><text x="900" y="41" text-anchor="middle">MiniMax API</text>
+      <!-- step 1 -->
+      <path class="ln acc" d="M80 86H278" marker-end="url(#a2c)"/>
+      <text class="sm" x="179" y="81">POST /tts {văn bản, giọng, JWT}</text>
+      <!-- step 2 -->
+      <path class="ln" d="M280 106H478" marker-end="url(#a2)"/>
+      <text class="sm" x="379" y="101">kiểm tra JWT, HWID</text>
+      <path class="ln" d="M478 124H282" marker-end="url(#a2)"/>
+      <text class="sm" x="379" y="136">credit còn, giọng của khách</text>
+      <!-- step 3 reserve -->
+      <path class="ln" d="M280 150H478" marker-end="url(#a2)"/>
+      <text class="sm" x="379" y="145">RESERVE len(text) ký tự</text>
+      <path class="ln" d="M478 166H282" marker-end="url(#a2)"/>
+      <text class="sm" x="379" y="178">ok (credit giữ tạm)</text>
+      <rect x="198" y="180" width="164" height="18" rx="4" fill="var(--warn-soft)" stroke="var(--warn)" stroke-width="1"/>
+      <text class="sm" x="280" y="193" text-anchor="middle" style="fill:var(--warn)">credit tạm giảm, chưa thực</text>
+      <!-- step 4 -->
+      <path class="ln" d="M280 210H698" marker-end="url(#a2)"/>
+      <text class="sm" x="489" y="205">chọn slot · giọng</text>
+      <path class="ln" d="M698 228H282" marker-end="url(#a2)"/>
+      <text class="sm" x="489" y="240">slot_id, voice_id thực tế</text>
+      <!-- step 5 call minimax -->
+      <path class="ln acc" d="M280 260H898" marker-end="url(#a2c)"/>
+      <text class="sm" x="589" y="255">POST t2a_v2 {văn bản, giọng…}</text>
+      <path class="ln acc" d="M898 278H282" marker-end="url(#a2c)"/>
+      <text class="sm" x="589" y="290">audio (hex) + usage_characters</text>
+      <!-- step 6 commit -->
+      <path class="ln" d="M280 308H478" marker-end="url(#a2)"/>
+      <text class="sm" x="379" y="303">COMMIT usage_characters thực tế</text>
+      <path class="ln" d="M478 324H282" marker-end="url(#a2)"/>
+      <text class="sm" x="379" y="336">ok (hoàn chênh lệch nếu ít hơn)</text>
+      <rect x="198" y="340" width="164" height="18" rx="4" fill="var(--good-soft)" stroke="var(--good)" stroke-width="1"/>
+      <text class="sm" x="280" y="353" text-anchor="middle" style="fill:var(--good)">credit chính xác, không âm</text>
+      <!-- step 7 return -->
+      <path class="ln acc" d="M280 370H82" marker-end="url(#a2c)"/>
+      <text class="sm" x="179" y="365">audio + số ký tự đã dùng</text>
+      <!-- error path label -->
+      <text class="sm t-bad" x="700" y="308" text-anchor="middle">1002? thử slot khác</text>
+      <text class="sm t-bad" x="700" y="322" text-anchor="middle">→ RELEASE giữ tạm</text>
+    </svg>
+    </div>
+    <figcaption>RESERVE trước khi gọi MiniMax để không âm credit khi nhiều yêu cầu chạy song song. COMMIT sau ghi lại <code>usage_characters</code> thực tế mà MiniMax báo về, trả lại phần dư. Nếu MiniMax trả lỗi rate limit, proxy thử slot khác và RELEASE giữ tạm của slot lỗi.</figcaption>
+  </figure>
+  <h3>Chia nhỏ văn bản dài</h3>
+  <p>MiniMax API đồng bộ nhận tối đa 10 000 ký tự; API bất đồng bộ nhận 50 000 ký tự (hoặc 1 triệu ký tự qua file). App chia văn bản tại ranh giới câu (kết thúc bằng <code>.</code> <code>?</code> <code>!</code> hoặc xuống dòng), mỗi đoạn tối đa 4 000 ký tự để còn đệm an toàn. Các đoạn gửi song song (tối đa 4 luồng), proxy ghép thứ tự sau khi tất cả về.</p>
+  <h3>Luồng SRT</h3>
+  <p>App đọc file .srt, với mỗi cue: văn bản → TTS → audio chunk. Ghép lại theo timeline bằng thư viện <code>pydub</code>: điền khoảng im lặng theo timestamp. Xuất ra một file .wav hoặc .mp4 (nếu có video gốc ghép lại).</p>
+</section>
+<section id="giong">
+  <h2>Giọng clone và thiết kế giọng</h2>
+  <h3>Clone giọng</h3>
+  <p>Giọng clone thuộc về một tài khoản MiniMax cụ thể — đây là ràng buộc của API, không thể chia sẻ. Proxy lưu bảng <code>customer_voices</code> với <code>account_slot_id</code> (slot đã tạo giọng), <code>voice_id</code>, và <code>sample_file_path</code> (file mẫu gốc đã upload). Khi slot chết:</p>
+  <ol>
+    <li>Worker phát hiện slot <code>auth_failed</code>, duyệt danh sách giọng ghim vào slot đó.</li>
+    <li>Mỗi giọng: upload lại file mẫu lên slot mới, gọi <code>POST /v1/voice_clone</code>, nhận <code>voice_id</code> mới.</li>
+    <li>Cập nhật bảng <code>customer_voices</code> với <code>account_slot_id</code> và <code>voice_id</code> mới.</li>
+    <li>App không cần biết gì — lần gọi tiếp theo tự nhận <code>voice_id</code> mới từ proxy.</li>
+  </ol>
+  <div class="callout"><b>Giới hạn của MiniMax</b><p><code>voice_id</code> phải là duy nhất trong tài khoản, 8–256 ký tự, không dùng lại. Khi clone lại sang slot mới, dùng quy ước <code>{customer_id}_v{n}</code> để tránh trùng (<code>v1</code>, <code>v2</code>…). Ghi lại <code>voice_id</code> cũ vào cột <code>prev_voice_ids</code> để audit.</p></div>
+  <h3>Thiết kế giọng (Voice Design)</h3>
+  <p>Khách mô tả giọng bằng chữ (prompt), proxy gọi <code>POST /v1/voice_design</code>. Giọng thiết kế không bị ràng buộc file mẫu nên dễ clone lại hơn: chỉ cần lưu lại <code>prompt</code> và gọi lại trên slot mới. Tuy nhiên kết quả giọng có thể khác đôi chút giữa hai lần gọi — ghi chú rõ điều này cho khách.</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Thao tác</th><th>Endpoint</th><th>Tài nguyên cần lưu</th><th>Clone lại như thế nào</th></tr></thead>
+      <tbody>
+        <tr><td>Clone từ file</td><td>File Upload → <code>/v1/voice_clone</code></td><td>file mẫu + <code>voice_id</code></td><td>Upload lại + gọi lại, tạo <code>voice_id</code> mới</td></tr>
+        <tr><td>Thiết kế từ mô tả</td><td><code>/v1/voice_design</code></td><td><code>prompt</code> + <code>voice_id</code></td><td>Gọi lại với cùng <code>prompt</code></td></tr>
+        <tr><td>Giọng có sẵn</td><td>Không cần tạo</td><td>Chỉ lưu ID hệ thống</td><td>Không cần, giọng hệ thống dùng được mọi slot</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+<section id="tinhphi">
+  <h2>Tính phí &amp; key kích hoạt</h2>
+  <h3>Admin tự cấu hình gói — không hard-code</h3>
+  <p>Toàn bộ định nghĩa gói nằm trong database, admin sửa qua trang quản trị không cần deploy lại. Admin chọn:</p>
+  <ul>
+    <li><strong>Đơn vị credit</strong>: ví dụ "1 credit = 1 000 ký tự" hay "1 credit = 1 ký tự" — tùy admin muốn hiển thị số nào cho dễ bán.</li>
+    <li><strong>Loại gói</strong>: <em>Plan</em> (thời hạn + credit kèm) hoặc <em>Topup</em> (chỉ cộng credit, không gia hạn).</li>
+    <li><strong>Tên, thời hạn, số credit</strong> cho mỗi gói.</li>
+    <li><strong>Ghi chú</strong> hiển thị trong app khi khách kích hoạt.</li>
+  </ul>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Trường trong DB</th><th>Kiểu</th><th>Mô tả</th></tr></thead>
+      <tbody>
+        <tr><td><code>credit_unit_chars</code></td><td class="num">int</td><td>1 credit = bao nhiêu ký tự MiniMax (cấu hình toàn hệ thống)</td></tr>
+        <tr><td><code>plan_credits</code></td><td class="num">bigint</td><td>Credit kèm theo gói (vd: 500 000 credits)</td></tr>
+        <tr><td><code>bonus_credits</code></td><td class="num">bigint</td><td>Credit topup đã nạp thêm, cộng dồn</td></tr>
+        <tr><td><code>used_credits</code></td><td class="num">bigint</td><td>Đã dùng trong kỳ hiện tại</td></tr>
+        <tr><td><code>plan_expires_at</code></td><td>timestamp</td><td>Hết hạn gói; bonus cũng hết theo</td></tr>
+        <tr><td><code>hwid</code></td><td>text</td><td>Mã máy đã đăng ký (khóa sau lần kích hoạt đầu)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Credit còn lại = <code>plan_credits + bonus_credits − used_credits</code>. Khi <code>NOW() &gt; plan_expires_at</code>: credit về 0 bất kể <code>bonus_credits</code> còn bao nhiêu.</p>
+  <h3>Luồng key kích hoạt</h3>
+  <p>Admin sinh key trong trang quản trị: <code>XXXX-XXXX-XXXX-XXXX</code> (base32 ngẫu nhiên, dùng một lần). Key gắn với một <code>plan_id</code>. Khách nhập key vào app → app gọi <code>POST /api/activate</code> → proxy xác minh key chưa dùng → tạo/nâng cấp tài khoản khách → trả <code>access_token</code> (JWT 24h) + <code>refresh_token</code> (30 ngày).</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Loại key</th><th>Tác dụng</th><th>Admin chọn lúc tạo</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pill acc">plan</span></td><td>Tạo tài khoản mới hoặc gia hạn gói</td><td>Gói cụ thể (thời hạn + credit)</td></tr>
+        <tr><td><span class="pill warn">topup</span></td><td>Cộng thêm credit vào tài khoản hiện có</td><td>Số credit bổ sung</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h3>Trừ credit an toàn</h3>
+  <p>Dùng PostgreSQL <code>SELECT … FOR UPDATE</code> trên hàng tài khoản khách. RESERVE ngay khi nhận yêu cầu (quy đổi ký tự → credit theo <code>credit_unit_chars</code>), COMMIT sau khi MiniMax trả <code>usage_characters</code> thực tế. Nếu có lỗi hoặc timeout, RELEASE để hoàn trả. Không dùng Redis cho thao tác này vì cần ACID; Redis chỉ dùng cho hàng đợi worker và cache trạng thái slot.</p>
+</section>
+<section id="baomat">
+  <h2>Đăng nhập &amp; khóa máy (HWID)</h2>
+  <h3>Xác thực</h3>
+  <p>App dùng JWT. <code>access_token</code> sống 24 giờ, <code>refresh_token</code> sống 30 ngày lưu trong SQLite trên máy khách (AES-256 encrypt). Mỗi refresh token bị khóa 1-1 với một HWID. Refresh token một lần dùng xong là hủy (<em>rotate</em>), tránh dùng lại token cũ nếu bị đánh cắp file.</p>
+  <h3>HWID — khóa máy</h3>
+  <p>Lần đầu kích hoạt key, app tính HWID và gửi lên. Proxy lưu vào bảng khách. Từ đó, mỗi request đều phải gửi HWID trong header; proxy kiểm tra so với bản lưu. Nếu sai → từ chối ngay. Admin có thể reset HWID khi khách đổi máy.</p>
+  <p>HWID tính từ: UUID bo mạch chủ (WMI) + CPU ID + volume serial drive C, rồi hash SHA-256. Không hoàn hảo nhưng đủ để ngăn copy thư mục sang máy khác.</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Cơ chế</th><th>Ngăn gì</th><th>Không ngăn được</th></tr></thead>
+      <tbody>
+        <tr><td>HWID</td><td>Copy cài đặt sang máy khác</td><td>Dùng chung máy vật lý</td></tr>
+        <tr><td>Một phiên đăng nhập</td><td>Dùng cùng lúc trên nhiều máy</td><td>Dùng tuần tự (máy này rồi máy kia)</td></tr>
+        <tr><td>JWT ngắn hạn</td><td>Xài mãi token cũ bị lộ</td><td>Man-in-the-middle (cần HTTPS)</td></tr>
+        <tr><td>Build Nuitka</td><td>Đọc source Python trực tiếp</td><td>RE chuyên nghiệp (cần thêm obfuscate)</td></tr>
+        <tr><td>Logic tính phí trên server</td><td>Crack để bypass credit</td><td>Không có gì để crack ở phía client</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h3>Trang quản trị admin</h3>
+  <p>Truy cập qua đường dẫn ẩn (không phải <code>/admin</code> mặc định), xác thực bằng username/mật khẩu + TOTP (2FA). Chức năng chính: sinh key, xem danh sách khách (credit còn, HWID, gói), reset HWID, thêm/sửa/tắt tài khoản MiniMax, cấu hình model, đăng thông báo, upload bản cập nhật app.</p>
+</section>
+<section id="app">
+  <h2>Ứng dụng exe — bố cục màn hình</h2>
+  <div class="cols">
+    <div>
+      <h3>Các tab chính</h3>
+      <ul>
+        <li><strong>Tạo giọng</strong>: nhập văn bản hoặc kéo thả file .txt/.docx; chọn giọng, tốc độ, cảm xúc; nút Tạo → tiến độ + nút Dừng; nghe thử và tải về.</li>
+        <li><strong>Lồng tiếng SRT</strong>: thả file .srt, chọn giọng, xem trước từng cue, Tạo → ghép theo timeline, xuất .wav.</li>
+        <li><strong>Giọng của tôi</strong>: thư viện giọng đã clone/thiết kế; thêm giọng mới (upload mẫu hoặc mô tả); xem trạng thái từng giọng.</li>
+        <li><strong>Hàng đợi</strong>: danh sách tác vụ đang chạy và đã hoàn thành; tạm dừng, tiếp tục, xóa.</li>
+        <li><strong>Lịch sử</strong>: file đã tạo theo ngày; mở lại, nghe thử, xuất ra thư mục.</li>
+        <li><strong>Tài khoản</strong>: credit còn, gói hiện tại, ngày hết hạn, nhập key mới, thông tin máy.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Cập nhật tự động</h3>
+      <p>Khi khởi động, app gọi <code>GET /api/version</code>. Nếu server báo phiên bản mới: hiện thông báo nhỏ ở góc. Nhấn "Cập nhật" → tải file installer, chạy bằng <code>subprocess.Popen</code>, app tự đóng để installer thay thế. Không dùng Squirrel hay NSIS tự động — giữ đơn giản.</p>
+      <h3>Thông báo từ admin</h3>
+      <p>Server trả trường <code>announcements</code> trong phản hồi <code>/api/version</code>. App hiện popup thông báo khi có tin mới (so sánh ID đã đọc lưu trong SQLite). Không cần WebSocket cho tính năng này.</p>
+      <h3>Xử lý hàng loạt</h3>
+      <p>Người dùng kéo nhiều file hoặc paste nhiều đoạn văn vào → tất cả vào hàng đợi. Tối đa 4 luồng song song (cấu hình được). Có thể tắt app và tiếp tục lần sau vì trạng thái lưu trong SQLite.</p>
+      <h3>Build và đóng gói</h3>
+      <p><code>nuitka --standalone --onefile</code>. Thêm <code>--windows-icon</code> và <code>--file-version-info</code> để trông chuyên nghiệp. Không dùng PyInstaller vì dễ bị AV báo nhầm hơn Nuitka.</p>
+    </div>
+  </div>
+</section>
+<section id="api">
+  <h2>API proxy — danh sách endpoint</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Method</th><th>Path</th><th>Auth</th><th>Mô tả</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pill acc">POST</span></td><td><code>/api/activate</code></td><td>Không</td><td>Kích hoạt key → trả JWT + refresh token</td></tr>
+        <tr><td><span class="pill acc">POST</span></td><td><code>/api/auth/refresh</code></td><td>Refresh token</td><td>Làm mới access token (rotate)</td></tr>
+        <tr><td><span class="pill">GET</span></td><td><code>/api/version</code></td><td>JWT</td><td>Phiên bản app mới nhất + thông báo admin</td></tr>
+        <tr><td><span class="pill">GET</span></td><td><code>/api/me</code></td><td>JWT</td><td>Thông tin khách: credit, gói, ngày hết hạn</td></tr>
+        <tr><td><span class="pill acc">POST</span></td><td><code>/api/tts</code></td><td>JWT</td><td>TTS đồng bộ (&lt;10 000 ký tự), trả audio base64</td></tr>
+        <tr><td><span class="pill acc">POST</span></td><td><code>/api/tts/async</code></td><td>JWT</td><td>TTS bất đồng bộ (đến 50 000 ký tự)</td></tr>
+        <tr><td><span class="pill">GET</span></td><td><code>/api/tts/async/{task_id}</code></td><td>JWT</td><td>Kiểm tra trạng thái tác vụ async</td></tr>
+        <tr><td><span class="pill">GET</span></td><td><code>/api/voices</code></td><td>JWT</td><td>Danh sách giọng có sẵn + giọng của khách</td></tr>
+        <tr><td><span class="pill acc">POST</span></td><td><code>/api/voices/clone</code></td><td>JWT</td><td>Upload mẫu + clone giọng</td></tr>
+        <tr><td><span class="pill acc">POST</span></td><td><code>/api/voices/design</code></td><td>JWT</td><td>Thiết kế giọng từ mô tả</td></tr>
+        <tr><td><span class="pill bad">DELETE</span></td><td><code>/api/voices/{voice_id}</code></td><td>JWT</td><td>Xóa giọng của khách</td></tr>
+        <tr><td><span class="pill">GET</span></td><td><code>/api/history</code></td><td>JWT</td><td>Lịch sử tạo file (phân trang)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h3>Header bắt buộc từ app</h3>
+  <pre>Authorization: Bearer &lt;access_token&gt;
+X-HWID: &lt;sha256-hwid&gt;
+X-App-Version: &lt;1.2.3&gt;
+Content-Type: application/json</pre>
+  <h3>Cấu trúc phản hồi lỗi</h3>
+  <pre>{ "code": "credit_insufficient", "message": "Không đủ ký tự. Còn 234, cần 500.", "data": {} }</pre>
+  <p>Mã lỗi dạng snake_case để app hiện thông báo đúng ngôn ngữ phía client mà không cần parse chuỗi.</p>
+</section>
+<section id="dulieu">
+  <h2>Cấu trúc dữ liệu chính</h2>
+  <p>Chỉ liệt kê bảng quan trọng và các cột quyết định thiết kế. Migration dùng Alembic.</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Bảng</th><th>Cột quan trọng</th><th>Ghi chú</th></tr></thead>
+      <tbody>
+        <tr><td><code>activation_keys</code></td><td><code>key_hash, plan_id, used_at, used_by</code></td><td>Lưu hash SHA-256 của key, không lưu key gốc</td></tr>
+        <tr><td><code>customers</code></td><td><code>id, hwid, plan_chars, bonus_chars, used_chars, plan_expires_at, last_seen_ip</code></td><td>Row-level lock khi RESERVE/COMMIT</td></tr>
+        <tr><td><code>account_slots</code></td><td><code>id, type, api_key_enc, group_id, cookie_enc, status, cooldown_until, fail_count_5m</code></td><td>AES-256 encrypt ở tầng application; loại key hoặc web</td></tr>
+        <tr><td><code>customer_voices</code></td><td><code>customer_id, voice_id, account_slot_id, type, prompt_or_file_path, prev_voice_ids[]</code></td><td>Dùng cho clone lại khi slot chết</td></tr>
+        <tr><td><code>usage_log</code></td><td><code>customer_id, slot_id, chars_reserved, chars_used, model, voice_id, created_at</code></td><td>Phân tích, audit; partition theo tháng nếu nhiều</td></tr>
+        <tr><td><code>system_voices</code></td><td><code>voice_id, name, lang, model_compatibility[]</code></td><td>Nhập thủ công từ tài liệu MiniMax</td></tr>
+        <tr><td><code>announcements</code></td><td><code>id, title, body, expires_at, target (all/plan_id)</code></td><td>App so sánh ID đã đọc</td></tr>
+        <tr><td><code>app_versions</code></td><td><code>version, download_url, release_notes, min_required</code></td><td>App buộc cập nhật nếu &lt; min_required</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h3>Lưu trữ file mẫu giọng</h3>
+  <p>File mẫu clone (mp3/wav) lưu trên disk VPS dưới thư mục <code>/data/voice_samples/{customer_id}/{voice_id}.mp3</code>. Đường dẫn tương đối lưu vào <code>customer_voices.prompt_or_file_path</code>. Backup hàng ngày sang object storage (Cloudflare R2 hoặc tương tự). Không lưu trong PostgreSQL (binary lớn, chậm backup).</p>
+</section>
+<section id="trienkhai">
+  <h2>Máy chủ — khuyến nghị</h2>
+  <h3>VPS phù hợp</h3>
+  <p>Để giảm độ trễ khi gọi MiniMax API (máy chủ MiniMax chủ yếu ở Nhật/Singapore), nên chọn VPS khu vực <strong>Singapore hoặc Tokyo</strong>. Nhà cung cấp phù hợp: <strong>DigitalOcean Singapore</strong> hoặc <strong>Vultr Singapore</strong>. Gói khởi đầu 2 vCPU / 4 GB RAM / 80 GB SSD, khoảng <strong>$24/tháng</strong>. Đủ thoải mái cho vài chục khách đồng thời.</p>
+  <h3>Stack Docker Compose</h3>
+  <pre>services:
+  proxy:      # FastAPI, uvicorn, 4 workers
+  worker:     # arq (Redis queue), tác vụ nền
+  admin:      # Trang quản trị, chạy cùng repo
+  db:         # PostgreSQL 16
+  redis:      # Redis 7, queue + cache slot status
+  caddy:      # HTTPS tự động qua Let's Encrypt</pre>
+  <h3>Cloudflare phía trước</h3>
+  <p>Domain trỏ về Cloudflare (nameserver). Bật <strong>Proxy</strong> (cam): DDoS protection, ẩn IP VPS, cache DNS. Tắt cache HTTP cho API (Cache Rule: bypass mọi đường <code>/api/*</code>). SSL mode: <strong>Full (strict)</strong> — Caddy tự xin cert Let's Encrypt, Cloudflare xác thực với Caddy qua HTTPS.</p>
+  <h3>Backup</h3>
+  <ul>
+    <li>PostgreSQL: <code>pg_dump</code> hàng ngày vào lúc 3h, nén và upload R2. Giữ 14 bản.</li>
+    <li>File mẫu giọng (<code>/data/voice_samples</code>): rclone sync lên R2 sau mỗi lần upload mới.</li>
+    <li>Redis: không cần backup vì chỉ chứa queue và cache (tái tạo được).</li>
+  </ul>
+</section>
+<section id="lotrinh">
+  <h2>Lộ trình</h2>
+  <div class="phases">
+    <div class="phase">
+      <div class="when"><strong>Giai đoạn 1</strong>2–3 tuần</div>
+      <div>
+        <h4>Nền tảng proxy + TTS cơ bản</h4>
+        <ul>
+          <li>FastAPI với endpoint <code>/activate</code>, <code>/me</code>, <code>/tts</code></li>
+          <li>Pool tài khoản MiniMax (API key), bộ chọn + cooldown</li>
+          <li>RESERVE / COMMIT credit theo đơn vị admin cấu hình, khóa HWID</li>
+          <li>App PySide6: tab Tạo giọng, nhập văn bản, chọn giọng hệ thống, tải về</li>
+          <li>Trang admin: sinh key, quản lý gói, danh sách khách</li>
+        </ul>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="when"><strong>Giai đoạn 2</strong>2–3 tuần</div>
+      <div>
+        <h4>Clone giọng + hàng loạt + cập nhật</h4>
+        <ul>
+          <li>Clone giọng + thiết kế giọng từ mô tả; tab Giọng của tôi</li>
+          <li>Worker: nuôi giọng hàng ngày, clone lại khi slot chết</li>
+          <li>Xử lý hàng loạt: chia đoạn, 4 luồng song song, tiến độ</li>
+          <li>Tab Lịch sử</li>
+          <li>Build Nuitka + tự cập nhật + thông báo từ admin</li>
+        </ul>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="when"><strong>Giai đoạn 3</strong>1–2 tuần</div>
+      <div>
+        <h4>Lồng tiếng SRT + hoàn thiện</h4>
+        <ul>
+          <li>Tab Lồng tiếng SRT: parse cue, TTS từng câu, ghép theo timeline (pydub), xuất .wav</li>
+          <li>Admin đầy đủ: thống kê sử dụng, cấu hình model MiniMax, đơn vị credit</li>
+          <li>Giao diện tiếng Việt hoàn chỉnh + i18n-ready</li>
+          <li>Kiểm thử, đóng gói phát hành lần đầu</li>
+        </ul>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="when"><strong>Giai đoạn 4</strong>2–3 tuần</div>
+      <div>
+        <h4>Tài khoản web MiniMax + Đổi giọng (sau)</h4>
+        <ul>
+          <li>Thêm loại slot <code>type=web</code>, bộ làm mới cookie/token</li>
+          <li>Bộ chọn ưu tiên key chính thức, dùng web khi key hết hạn mức</li>
+          <li>Tính năng Đổi giọng: tích hợp STT (API bên ngoài hoặc Whisper server-side)</li>
+          <li>Không cần thay đổi phía app cho phần tài khoản web</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="ruiro">
+  <h2>Rủi ro cần chú ý</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Rủi ro</th><th>Mức</th><th>Biện pháp</th></tr></thead>
+      <tbody>
+        <tr><td>MiniMax thay đổi API đột ngột (endpoint, format)</td><td><span class="pill warn">Trung bình</span></td><td>Tách lớp gọi MiniMax thành module riêng; theo dõi changelog platform.minimax.io</td></tr>
+        <tr><td>Rate limit MiniMax khi nhiều khách cùng lúc</td><td><span class="pill warn">Trung bình</span></td><td>Cooldown tự động, backoff, nhiều tài khoản MiniMax. Thêm tài khoản khi pool yếu</td></tr>
+        <tr><td>Giọng clone bị xóa (7 ngày không dùng)</td><td><span class="pill acc">Thấp</span></td><td>Worker nuôi giọng hàng ngày</td></tr>
+        <tr><td>Khách chia sẻ tài khoản giữa nhiều máy</td><td><span class="pill warn">Trung bình</span></td><td>Khóa HWID, một phiên đăng nhập; admin thấy thống kê bất thường</td></tr>
+        <tr><td>VPS bị tấn công DDoS vào proxy</td><td><span class="pill acc">Thấp</span></td><td>Cloudflare phía trước (DDoS L7); rate limit ở tầng Caddy</td></tr>
+        <tr><td>Rò rỉ API key MiniMax</td><td><span class="pill bad">Cao</span></td><td>Encrypt ở tầng app (AES-256), không log; nếu rò: xoay key ngay, slot dự phòng</td></tr>
+        <tr><td>PostgreSQL hỏng / mất credit</td><td><span class="pill warn">Trung bình</span></td><td>Backup hàng ngày; <code>usage_log</code> cho phép tính lại <code>used_chars</code> nếu cần</td></tr>
+        <tr><td>Nuitka build lỗi sau Windows update</td><td><span class="pill acc">Thấp</span></td><td>CI build tự động trên Windows runner; kiểm thử trước khi đẩy bản mới</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+<section id="cauhoi">
+  <h2>Quyết định đã chốt</h2>
+  <ol class="qs">
+    <li><span><strong>Tên app:</strong> LLVoiceTool. Domain và cấu hình Caddy sẽ dùng tên này.</span></li>
+    <li><span><strong>Gói credit:</strong> Admin tự tạo và cấu hình hoàn toàn trong trang quản trị — không hard-code. Đơn vị credit (1 credit = bao nhiêu ký tự), tên gói, thời hạn, số credit đều do admin quyết định.</span></li>
+    <li><span><strong>Tài khoản MiniMax:</strong> Chưa có. Khi mua sẽ nhập vào trang quản trị. Giai đoạn 1 test bằng tài khoản thử nghiệm hoặc sandbox nếu MiniMax có.</span></li>
+    <li><span><strong>Ngôn ngữ giao diện:</strong> Tiếng Việt mặc định. Code theo cấu trúc i18n (file JSON) để sau thêm ngôn ngữ khác không cần sửa code.</span></li>
+    <li><span><strong>Tính năng Đổi giọng:</strong> Bỏ khỏi v1. Khi làm sẽ chọn giữa Whisper server-side hoặc API STT bên ngoài tùy chi phí thực tế lúc đó.</span></li>
+  </ol>
+  <footer>LLVoiceTool · Tài liệu thiết kế v0.2 · Cập nhật 29/09/2026 · Không commit lên repo công khai.</footer>
+</section>
+</main>
+</div>
+</body>
+</html>
