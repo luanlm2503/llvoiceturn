@@ -4,6 +4,7 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy.ext.asyncio import create_async_engine
 
+import app.models  # noqa: F401 — đăng ký metadata cho autogenerate
 from app.config import get_settings
 from app.db import Base
 
