@@ -1,6 +1,5 @@
 # Đóng gói app thành exe bằng Nuitka. Chạy từ thư mục client/ sau khi đã cài: pip install -e ".[build]"
 # Ví dụ: .\build.ps1 -ApiBaseUrl https://api.llvoice.vn
-# Thêm --windows-icon-from-ico khi đã có icon (task 1.83).
 param(
     [Parameter(Mandatory = $true)]
     [string]$ApiBaseUrl
@@ -15,6 +14,8 @@ try {
         --onefile `
         --enable-plugin=pyside6 `
         --include-data-dir=llvoice/locales=llvoice/locales `
+        --include-data-dir=llvoice/assets=llvoice/assets `
+        --windows-icon-from-ico=llvoice/assets/icon.ico `
         --windows-console-mode=disable `
         --company-name="LLVoiceTool" `
         --product-name="LLVoiceTool" `

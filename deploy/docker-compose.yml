@@ -46,8 +46,9 @@ services:
     profiles: [prod]
     image: caddy:2-alpine
     restart: unless-stopped
-    environment:
-      LLV_DOMAIN: ${LLV_DOMAIN:?Chưa đặt LLV_DOMAIN trong deploy/.env}
+    # Đọc LLV_DOMAIN từ deploy/.env lúc chạy, không nội suy lúc parse,
+    # để lệnh dev "docker compose up -d db redis" không đòi biến này.
+    env_file: .env
     ports:
       - "80:80"
       - "443:443"
